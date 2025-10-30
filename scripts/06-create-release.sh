@@ -11,7 +11,7 @@ usage() {
     echo "Usage: $0 <target-release-image>"
     echo ""
     echo "Example:"
-    echo "  $0 quay.io/skhoury/ocp-release:4.20-sparse-aws"
+    echo "  $0 quay.io/skhoury/ocp-release:4.20-pruned-aws"
     exit 1
 }
 
@@ -21,7 +21,7 @@ fi
 
 TARGET_RELEASE="$1"
 
-echo "==> Creating new sparse release image"
+echo "==> Creating new pruned release image"
 echo "Target release: ${TARGET_RELEASE}"
 
 # Check if updated references file exists

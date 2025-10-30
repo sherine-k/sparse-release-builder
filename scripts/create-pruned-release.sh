@@ -1,36 +1,34 @@
 #!/bin/bash
 set -euo pipefail
 
-# Main orchestration script for creating sparse OpenShift releases
+# Main orchestration script for creating pruned OpenShift releases
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 usage() {
     cat << EOF
-Usage: $0 <source-release-image> <target-registry> <version-prefix> <target-release-image> <target-token>
+Usage: $0 <source-release-image> <target-registry> <version-prefix> <target-release-image>
 
-Creates a sparse OpenShift release with only AWS components filtered to amd64/arm64.
+Creates a pruned OpenShift release with only AWS components filtered to amd64/arm64.
 
 Arguments:
   source-release-image  - Source multiarch release image (with digest)
   target-registry       - Target registry for filtered component images
   version-prefix        - Version prefix for component tags (e.g., 4.20)
   target-release-image  - Target release image reference
-  target-token          - Authentication token for pushing to target registry
 
 Example:
   $0 \\
     quay.io/openshift-release-dev/ocp-release-nightly@sha256:a322e402ed7f31877ee1dfc2d2f989265ad10a32f4384a305a67806c6e9a1017 \\
     quay.io/skhoury/ocp-v4.0-art-dev \\
     4.20 \\
-    quay.io/skhoury/ocp-release:4.20-sparse-aws \\
-    "\$TOKEN"
+    quay.io/skhoury/ocp-release:4.20-pruned-aws 
 
 EOF
     exit 1
 }
 
-if [ $# -ne 5 ]; then
+if [ $# -ne 4 ]; then
     usage
 fi
 
@@ -38,10 +36,9 @@ SOURCE_RELEASE="$1"
 TARGET_REGISTRY="$2"
 VERSION_PREFIX="$3"
 TARGET_RELEASE="$4"
-TARGET_TOKEN="$5"
 
 echo "========================================="
-echo "OpenShift Sparse Release Builder"
+echo "Multiarch Release Pruner"
 echo "========================================="
 echo "Source release:     ${SOURCE_RELEASE}"
 echo "Target registry:    ${TARGET_REGISTRY}"
@@ -92,7 +89,7 @@ echo ""
 echo "========================================="
 echo "Step 4: Processing images"
 echo "========================================="
-"${SCRIPT_DIR}/04-process-images.sh" "${TARGET_REGISTRY}" "${VERSION_PREFIX}" "${TARGET_TOKEN}"
+"${SCRIPT_DIR}/04-process-images.sh" "${TARGET_REGISTRY}" "${VERSION_PREFIX}"
 echo ""
 
 # Step 5: Update image references
@@ -110,7 +107,7 @@ echo "========================================="
 echo ""
 
 echo "========================================="
-echo "Sparse release creation complete!"
+echo "Pruned release creation complete!"
 echo "========================================="
 echo ""
 echo "Next steps:"

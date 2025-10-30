@@ -1,4 +1,4 @@
-module github.com/sherine-k/sparse-manifests
+module github.com/sherine-k/multiarch-release-pruner
 
 go 1.21
 

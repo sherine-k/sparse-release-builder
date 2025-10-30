@@ -10,20 +10,19 @@ AWS_COMPONENTS_FILE="${WORK_DIR}/aws-components.json"
 IMAGE_MAPPING_FILE="${WORK_DIR}/image-mapping.json"
 
 usage() {
-    echo "Usage: $0 <target-registry> <tag-prefix> <target-token>"
+    echo "Usage: $0 <target-registry> <tag-prefix>"
     echo ""
     echo "Example:"
-    echo "  $0 quay.io/skhoury/ocp-v4.0-art-dev 4.20 \"\$TOKEN\""
+    echo "  $0 quay.io/skhoury/ocp-v4.0-art-dev 4.20 "
     exit 1
 }
 
-if [ $# -ne 3 ]; then
+if [ $# -ne 2 ]; then
     usage
 fi
 
 TARGET_REGISTRY="$1"
 TAG_PREFIX="$2"
-TARGET_TOKEN="$3"
 
 echo "==> Processing AWS component images"
 echo "Target registry: ${TARGET_REGISTRY}"
@@ -73,7 +72,6 @@ jq -c '.[]' "${AWS_COMPONENTS_FILE}" | while read -r component; do
         --source "${SOURCE_IMAGE}" \
         --target "${TARGET_IMAGE}" \
         --arch amd64,arm64 \
-        --target-token "${TARGET_TOKEN}" \
         --digest)
 
     if [ $? -eq 0 ]; then

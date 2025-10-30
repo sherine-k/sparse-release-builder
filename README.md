@@ -1,15 +1,16 @@
-# OpenShift Sparse Release Builder
+# Multiarch Release Pruner
 
-This project provides tools to create OpenShift releases excluding dummy images for certain components by filtering multiarch images to specific architectures.
+This project provides tools to create OpenShift releases by pruning multiarch manifest lists to specific architectures, excluding dummy images for certain components.
 
-PS: The filtering is not exactly a sparse manifest. 
-For a component such as `aws-cloud-controller-manager` (for instance), the initial image within `image-references` is a manifest list that contains the amd64 and arm64 images, plus dummy images (`pod`) for ppc64le and s390x.
+**Note on terminology:** This is NOT the same as "sparse manifests". 
 
-In sparse manifests, we expect the registry (`quay.io` in this instance) to accept the POST of the manifest list containing 4 manifests, when only the amd64 and arm64 images were previously pushed to the registry. 
+For a component such as `aws-cloud-controller-manager`, the initial image within `image-references` is a manifest list that contains the amd64 and arm64 images, plus dummy images (`pod`) for ppc64le and s390x.
 
-At the time of the writing, quay.io produces an error in such a case, complaining that the digests corresponding to the ppc64le or s390x manifests are not found within the registry. 
+With sparse manifests, we would expect the registry (`quay.io` in this instance) to accept the POST of the manifest list containing 4 manifests, when only the amd64 and arm64 images were previously pushed to the registry.
 
-In this project, we are suggesting another approach, where dummy images aren't added to the `aws-cloud-controller-manager` manifest list in the first place. The manifest list for this image only contains the arm64 and amd64 images. The goal is to find out if clusters can install ppc64le clusters with a release containing such images (incomplete from the ppc64le perspective).
+At the time of writing, quay.io produces an error in such a case, complaining that the digests corresponding to the ppc64le or s390x manifests are not found within the registry.
+
+In this project, we take a different approach: dummy images aren't added to the `aws-cloud-controller-manager` manifest list in the first place. The manifest list for this image only contains the arm64 and amd64 images. The goal is to test if clusters can install on architectures like ppc64le with a release containing such pruned images (incomplete from the ppc64le perspective).
 
 ## Overview
 
@@ -20,7 +21,7 @@ The tools in this repository allow you to:
 4. Reconstruct manifest lists with only specific architectures (amd64, arm64)
 5. Push filtered images to a custom registry
 6. Create a new release image with the modified references
-7. Test the sparse release on different architectures
+7. Test the pruned release on different architectures
 
 ## Prerequisites
 
@@ -52,10 +53,12 @@ make build
 ### Run the complete workflow
 
 ```bash
-./scripts/create-sparse-release.sh \
+./scripts/create-pruned-release.sh \
   quay.io/openshift-release-dev/ocp-release-nightly@sha256:a322e402ed7f31877ee1dfc2d2f989265ad10a32f4384a305a67806c6e9a1017 \
   quay.io/skhoury/ocp-v4.0-art-dev \
-  4.20
+  4.20 \
+  quay.io/skhoury/ocp-release:4.20-pruned-aws \
+  "$TOKEN"
 ```
 
 ### Individual steps
@@ -87,8 +90,8 @@ Each step can be run individually for debugging:
 4. **Reconstruct Manifests**: Go tool filters manifest lists to only include amd64 and arm64
 5. **Push Images**: Pushes filtered images to target registry
 6. **Update References**: Replaces image references with new digests
-7. **Create Release**: Uses `oc adm release new` to build the sparse release
+7. **Create Release**: Uses `oc adm release new` to build the pruned release
 
 ## Example
 
-Testing a sparse release on a Power cluster to verify it works with reduced architecture support.
+Testing a pruned release on a Power cluster to verify it works with reduced architecture support.

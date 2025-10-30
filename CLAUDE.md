@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This project creates sparse OpenShift releases by filtering multiarch container images to specific architectures and components. The main use case is to create releases that contain only AWS-related components filtered to amd64/arm64 architectures, allowing testing on platforms that don't have all architectures available in the original multiarch release.
+This project creates pruned OpenShift releases by filtering multiarch container images to specific architectures and components. The main use case is to create releases that contain only AWS-related components with manifest lists pruned to amd64/arm64 architectures (removing dummy images for other architectures), allowing testing on platforms that don't have all architectures available in the original multiarch release.
 
 ## Build Commands
 
@@ -46,10 +46,10 @@ The project uses a **multi-stage pipeline architecture** with intermediate files
 
 ### Orchestration Script
 
-`create-sparse-release.sh` runs all 6 steps in sequence with a single command:
+`create-pruned-release.sh` runs all 6 steps in sequence with a single command:
 
 ```bash
-./scripts/create-sparse-release.sh \
+./scripts/create-pruned-release.sh \
   <source-release-image> \
   <target-registry> \
   <version-prefix> \
