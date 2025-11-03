@@ -1,0 +1,123 @@
+$ crane pull quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:f0f44755b378d9d2eeeb172763245216483c8995b2c20918cad406889de95500 --format oci /tmp/ocp-art
+$ cat index.json | jq
+{
+  "schemaVersion": 2,
+  "mediaType": "application/vnd.oci.image.index.v1+json",
+  "manifests": [
+    {
+      "mediaType": "application/vnd.docker.distribution.manifest.list.v2+json",
+      "size": 1247,
+      "digest": "sha256:f0f44755b378d9d2eeeb172763245216483c8995b2c20918cad406889de95500"
+    }
+  ]
+}
+$ cat blobs/sha256/f0f44755b378d9d2eeeb172763245216483c8995b2c20918cad406889de95500 | jq
+{
+  "schemaVersion": 2,
+  "mediaType": "application/vnd.docker.distribution.manifest.list.v2+json",
+  "manifests": [
+    {
+      "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+      "size": 924,
+      "digest": "sha256:6c885ecb91dc3af1ab0dbe5a48195f654b7cd268a8b921698710f70e7ac8ca9b",
+      "platform": {
+        "architecture": "amd64",
+        "os": "linux"
+      }
+    },
+    {
+      "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+      "size": 924,
+      "digest": "sha256:6fcdb282bc3ec614b8f34d3486d3eacfdacd86ed094fdcb720917e3f28ebc94c",
+      "platform": {
+        "architecture": "arm64",
+        "os": "linux"
+      }
+    },
+    {
+      "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+      "size": 920,
+      "digest": "sha256:6dbaf604bf2fba124c8027313813f0f1bbb04ef53f50b8d0a05be382393272b8",
+      "platform": {
+        "architecture": "s390x",
+        "os": "linux"
+      }
+    },
+    {
+      "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+      "size": 920,
+      "digest": "sha256:0ff7a0f56ddd6552af2c2a1bce3c03d476c8b36cf928b5c6101ac869ac37fba5",
+      "platform": {
+        "architecture": "ppc64le",
+        "os": "linux"
+      }
+    }
+  ]
+}
+$ cat blobs/sha256/6dbaf604bf2fba124c8027313813f0f1bbb04ef53f50b8d0a05be382393272b8 | jq
+{
+  "schemaVersion": 2,
+  "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+  "config": {
+    "mediaType": "application/vnd.docker.container.image.v1+json",
+    "size": 20638,
+    "digest": "sha256:dd333e652b74d75986dc2c17e3b3f757b7d87802ce5561adbae881d9393e4de4"
+  },
+  "layers": [
+    {
+      "mediaType": "application/vnd.docker.image.rootfs.diff.tar.gzip",
+      "size": 76742604,
+      "digest": "sha256:3f6592ee4574f8a4778120cd6fdecfa4a4166221798feeac7fd7dc1b3f343194"
+    },
+    {
+      "mediaType": "application/vnd.docker.image.rootfs.diff.tar.gzip",
+      "size": 48391781,
+      "digest": "sha256:d58592a078f0cfe5914157a53a82b3b1749ff530a4408aa5650b3639929b7366"
+    },
+    {
+      "mediaType": "application/vnd.docker.image.rootfs.diff.tar.gzip",
+      "size": 9207945,
+      "digest": "sha256:17e86e2a16c0cf15b46286ebc1232d5d547c4d8783a227a6b3de595567d19f9b"
+    },
+    {
+      "mediaType": "application/vnd.docker.image.rootfs.diff.tar.gzip",
+      "size": 4431,
+      "digest": "sha256:3a0589ccc6beacad14440f1d63c97652ef30e3d7ca2d2ab08faaa075636feaae"
+    }
+  ]
+}
+
+$ mkdir /tmp/s390x_blobs
+$ for i in `cat blobs/sha256/6dbaf604bf2fba124c8027313813f0f1bbb04ef53f50b8d0a05be382393272b8 | jq -r .layers[].digest | cut -d: -f2`
+> do mv blobs/sha256/$i /tmp/s390x_blobs
+> done
+
+$ mkdir /tmp/ppc64le_blobs
+$ for i in `cat blobs/sha256/0ff7a0f56ddd6552af2c2a1bce3c03d476c8b36cf928b5c6101ac869ac37fba5 | jq -r .layers[].digest | cut -d: -f2`; do mv blobs/sha256/$i /tmp/ppc64le_blobs/; done
+
+$ mv blobs/sha256/0ff7a0f56ddd6552af2c2a1bce3c03d476c8b36cf928b5c6101ac869ac37fba5 /tmp/ppc64le_blobs/
+$ mv blobs/sha256/6dbaf604bf2fba124c8027313813f0f1bbb04ef53f50b8d0a05be382393272b8 /tmp/s390x_blobs
+
+$ skopeo copy docker://quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:6fcdb282bc3ec614b8f34d3486d3eacfdacd86ed094fdcb720917e3f28ebc94c docker://z3797178.c1.va1.container-registry.ovh.us/public/ocp-v4.0-art-dev:linux-arm64
+Getting image source signatures
+Checking if image destination supports signatures
+Copying blob abced7ee5844 done   | 
+Copying blob ee0120643429 done   | 
+Copying blob c6227e48b5fd done   | 
+Copying blob 8eb029e8756c done   | 
+Copying config 4d44b46c6c done   | 
+Writing manifest to image destination
+Storing signatures
+$ skopeo copy docker://quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:6c885ecb91dc3af1ab0dbe5a48195f654b7cd268a8b921698710f70e7ac8ca9b docker://z3797178.c1.va1.container-registry.ovh.us/public/ocp-v4.0-art-dev:linux-amd64
+Getting image source signatures
+Checking if image destination supports signatures
+Copying blob 67705065e025 done   | 
+Copying blob 9d458e2e81cb done   | 
+Copying blob 6de53b2bfcfa done   | 
+Copying blob 25c75c34b2e2 done   | 
+Copying config 20dd9df9b3 done   | 
+Writing manifest to image destination
+Storing signatures
+
+$ curl -X PUT -H "Content-Type: application/vnd.docker.distribution.manifest.list.v2+json" --data-binary @/tmp/ocp-art/blobs/sha256/f0f44755b378d9d2eeeb172763245216483c8995b2c20918cad406889de95500 https://z3797178.c1.va1.container-registry.ovh.us/v2/public/ocp-v4.0-art-dev/manifests/sha256:f0f44755b378d9d2eeeb172763245216483c8995b2c20918cad406889de95500 --user kubecon:Kubec0nNA
+{"errors":[{"code":"MANIFEST_BLOB_UNKNOWN","message":"blob unknown to registry","detail":"sha256:6dbaf604bf2fba124c8027313813f0f1bbb04ef53f50b8d0a05be382393272b8"},{"code":"MANIFEST_BLOB_UNKNOWN","message":"blob unknown to registry","detail":"sha256:0ff7a0f56ddd6552af2c2a1bce3c03d476c8b36cf928b5c6101ac869ac37fba5"}]}

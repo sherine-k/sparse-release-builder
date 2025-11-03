@@ -1,0 +1,23 @@
+-$ skopeo copy docker://quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:6fcdb282bc3ec614b8f34d3486d3eacfdacd86ed094fdcb720917e3f28ebc94c docker://skhoury:5000/ocp-v4.0-art-dev:linux-arm64 --dest-tls-verify=false
+Getting image source signatures
+Checking if image destination supports signatures
+Copying blob 8eb029e8756c done   | 
+Copying blob ee0120643429 done   | 
+Copying blob abced7ee5844 done   | 
+Copying blob c6227e48b5fd done   | 
+Copying config 4d44b46c6c done   | 
+Writing manifest to image destination
+Storing signatures
+$ skopeo copy docker://quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:6c885ecb91dc3af1ab0dbe5a48195f654b7cd268a8b921698710f70e7ac8ca9b docker://skhoury:5000/ocp-v4.0-art-dev:linux-amd64 --dest-tls-verify=false
+Getting image source signatures
+
+Checking if image destination supports signatures
+Copying blob 6de53b2bfcfa done   | 
+Copying blob 9d458e2e81cb done   | 
+Copying blob 67705065e025 done   | 
+Copying blob 25c75c34b2e2 skipped: already exists  
+Copying config 20dd9df9b3 done   | 
+Writing manifest to image destination
+Storing signatures
+$ curl -X PUT -H "Content-Type: application/vnd.docker.distribution.manifest.list.v2+json" --data-binary @/tmp/ocp-art/blobs/sha256/f0f44755b378d9d2eeeb172763245216483c8995b2c20918cad406889de95500 http://skhoury:5000/v2/ocp-v4.0-art-dev/manifests/sha256:f0f44755b378d9d2eeeb172763245216483c8995b2c20918cad406889de95500 
+{"errors":[{"code":"MANIFEST_BLOB_UNKNOWN","message":"blob unknown to registry","detail":"sha256:6dbaf604bf2fba124c8027313813f0f1bbb04ef53f50b8d0a05be382393272b8"},{"code":"MANIFEST_BLOB_UNKNOWN","message":"blob unknown to registry","detail":"sha256:0ff7a0f56ddd6552af2c2a1bce3c03d476c8b36cf928b5c6101ac869ac37fba5"}]}

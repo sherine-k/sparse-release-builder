@@ -37,7 +37,7 @@ The project uses a **multi-stage pipeline architecture** with intermediate files
 4. **Process Images** (`04-process-images.sh`): For each filtered component:
    - Uses the `manifest-filter` Go tool to pull the source multiarch image
    - Filters the manifest list to only include specified architectures (default: amd64, arm64)
-   - Pushes filtered manifest list to target registry using the provided authentication token
+   - Pushes filtered manifest list to target registry 
    - Records the mapping (component name, source image, new digest) in `work/image-mapping.json`
 
 5. **Update References** (`05-update-references.sh`): Takes `image-references.json` and updates the image references for filtered components using data from `image-mapping.json`, creating `work/image-references-updated.json`.
@@ -54,7 +54,6 @@ The project uses a **multi-stage pipeline architecture** with intermediate files
   <target-registry> \
   <version-prefix> \
   <target-release-image> \
-  <target-token>
 ```
 
 ## Key Components
@@ -64,13 +63,12 @@ The project uses a **multi-stage pipeline architecture** with intermediate files
 A Go tool that:
 - Pulls a multiarch image (manifest list) from a source registry
 - Filters the manifest list to include only specified architectures
-- Pushes the filtered manifest list to a target registry using a provided authentication token
+- Pushes the filtered manifest list to a target registry
 - Returns the digest of the pushed image
 
 **Required flags:**
 - `--source` (`-s`): Source image reference
 - `--target` (`-t`): Target image reference
-- `--target-token`: Authentication token for pushing to target registry
 - `--arch` (`-a`): Comma-separated list of architectures (default: amd64,arm64)
 - `--digest` (`-d`): Output only the digest (for scripting)
 
@@ -91,8 +89,7 @@ All intermediate files are stored in `work/`:
 
 The pipeline requires:
 - Read access to source registry (uses default Docker config or `authn.DefaultKeychain`)
-- **Target registry token** passed as a parameter to authenticate push operations in `manifest-filter`
-
+- Write access to the target registry (uses default Docker config or `authn.DefaultKeychain`)
 ## Customization Points
 
 - **Filter different components**: Edit the `jq` filter in `03-filter-aws-components.sh` (line 22)
@@ -106,7 +103,6 @@ The pipeline requires:
 ./bin/manifest-filter \
   --source quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:abc... \
   --target quay.io/myregistry/test:tag \
-  --target-token "$TOKEN" \
   --arch amd64,arm64 \
   --digest
 ```
