@@ -21,3 +21,32 @@ Writing manifest to image destination
 Storing signatures
 $ curl -X PUT -H "Content-Type: application/vnd.docker.distribution.manifest.list.v2+json" --data-binary @/tmp/ocp-art/blobs/sha256/f0f44755b378d9d2eeeb172763245216483c8995b2c20918cad406889de95500 http://skhoury:5000/v2/ocp-v4.0-art-dev/manifests/sha256:f0f44755b378d9d2eeeb172763245216483c8995b2c20918cad406889de95500 
 {"errors":[{"code":"MANIFEST_BLOB_UNKNOWN","message":"blob unknown to registry","detail":"sha256:6dbaf604bf2fba124c8027313813f0f1bbb04ef53f50b8d0a05be382393272b8"},{"code":"MANIFEST_BLOB_UNKNOWN","message":"blob unknown to registry","detail":"sha256:0ff7a0f56ddd6552af2c2a1bce3c03d476c8b36cf928b5c6101ac869ac37fba5"}]}
+
+
+$ cat config.yml 
+version: 0.1
+log:
+  level: info
+  fields:
+    service: registry
+storage:
+  delete:
+      enabled: true
+  cache:
+    blobdescriptor: inmemory
+  filesystem:
+    rootdirectory: /home/skhoury/go/src/github.com/distribution/bin/var/lib/registry
+validation:
+  manifests:
+    indexes:
+      platforms: None 
+http:
+  addr: :5000
+  headers:
+    X-Content-Type-Options: [nosniff]
+#  tls:
+#    certificate: /home/skhoury/go/src/github.com/distribution/bin/skhoury2_cert.pem
+#    key: /home/skhoury/go/src/github.com/distribution/bin/skhoury2_key.pem
+
+
+$ # echo  "now the curl to push the sparse index will pass"
